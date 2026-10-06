@@ -1,11 +1,15 @@
 package model;
 
-// A Booking links one Couple to one Vendor.
-// The Couple and Vendor are created outside and passed in (Aggregation).
+// A Booking links one Couple to up to 3 Vendors:
+// a photographer, a caterer and a decorator.
+// A vendor that was not chosen is null, so any combination is possible.
+// The Couple and Vendors are created outside and passed in (Aggregation).
 public class Booking {
     private int bookingId;
     private Couple couple;
-    private Vendor vendor;
+    private Vendor photographer;
+    private Vendor caterer;
+    private Vendor decorator;
     private String eventDate;
     private String status;   // "Confirmed" or "Cancelled"
 
@@ -13,16 +17,21 @@ public class Booking {
     public Booking() {
         bookingId = 0;
         couple = null;
-        vendor = null;
+        photographer = null;
+        caterer = null;
+        decorator = null;
         eventDate = "";
         status = "Confirmed";
     }
 
-    // Parameterized constructor
-    public Booking(int bookingId, Couple couple, Vendor vendor, String eventDate) {
+    // Parameterized constructor (pass null for a service that is not needed)
+    public Booking(int bookingId, Couple couple, Vendor photographer,
+                   Vendor caterer, Vendor decorator, String eventDate) {
         setBookingId(bookingId);
         this.couple = couple;
-        this.vendor = vendor;
+        this.photographer = photographer;
+        this.caterer = caterer;
+        this.decorator = decorator;
         this.eventDate = eventDate;
         this.status = "Confirmed";
     }
@@ -47,12 +56,28 @@ public class Booking {
         this.couple = couple;
     }
 
-    public Vendor getVendor() {
-        return vendor;
+    public Vendor getPhotographer() {
+        return photographer;
     }
 
-    public void setVendor(Vendor vendor) {
-        this.vendor = vendor;
+    public void setPhotographer(Vendor photographer) {
+        this.photographer = photographer;
+    }
+
+    public Vendor getCaterer() {
+        return caterer;
+    }
+
+    public void setCaterer(Vendor caterer) {
+        this.caterer = caterer;
+    }
+
+    public Vendor getDecorator() {
+        return decorator;
+    }
+
+    public void setDecorator(Vendor decorator) {
+        this.decorator = decorator;
     }
 
     public String getEventDate() {
@@ -71,13 +96,41 @@ public class Booking {
         this.status = status;
     }
 
+    // Adds up the price of every vendor that was chosen
+    public double calculateTotal() {
+        double total = 0;
+        if (photographer != null) {
+            total = total + photographer.getPrice();
+        }
+        if (caterer != null) {
+            total = total + caterer.getPrice();
+        }
+        if (decorator != null) {
+            total = total + decorator.getPrice();
+        }
+        return total;
+    }
+
+    // Prints one vendor line, or "Not selected"
+    private void displayVendor(String label, Vendor vendor) {
+        if (vendor == null) {
+            System.out.println(label + ": Not selected");
+        } else {
+            System.out.println(label + ": " + vendor.getVendorName()
+                    + " (Rs." + vendor.getPrice() + ")");
+        }
+    }
+
     public void displayDetails() {
         System.out.println("----------------------------------");
         System.out.println("Booking ID  : " + bookingId);
         System.out.println("Event Date  : " + eventDate);
         System.out.println("Status      : " + status);
         couple.displayDetails();
-        vendor.displayDetails();
+        displayVendor("Photographer", photographer);
+        displayVendor("Caterer     ", caterer);
+        displayVendor("Decorator   ", decorator);
+        System.out.println("Total (Rs.) : " + calculateTotal());
         System.out.println("----------------------------------");
     }
 }
